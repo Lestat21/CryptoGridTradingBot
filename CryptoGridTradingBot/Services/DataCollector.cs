@@ -4,6 +4,7 @@ using Binance.Net.Enums;
 using Binance.Net.Interfaces;
 using Binance.Net.Interfaces.Clients;
 using Binance.Net.Objects.Models.Spot;
+using CryptoGridTradingBot.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,6 +98,14 @@ namespace CryptoGridTradingBot.Services
             if (!tickerResult.Success)
                 throw new Exception($"Ошибка при получении объёма: {tickerResult.Error.Message}");
             return (double)tickerResult.Data.Volume;
+        }
+        // Меьтод сохранения сделок
+        public void SaveTradeResult(TradeResult trade)
+        {
+            using (var writer = new StreamWriter("Data/trading_results.csv", true))
+            {
+                writer.WriteLine($"{trade.Timestamp},{trade.Symbol},{trade.Price},{trade.Volume},{trade.Profit}");
+            }
         }
     }
 }

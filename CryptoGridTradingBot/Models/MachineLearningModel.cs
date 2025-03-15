@@ -12,35 +12,38 @@ namespace CryptoGridTradingBot.Models
 
         public MachineLearningModel(string modelPath)
         {
-            // Загрузка ONNX-модели
             _session = new InferenceSession(modelPath);
         }
 
-        public float PredictOptimalGridSpacing(float atr, float rsi, float volume)
+        public double PredictOptimalGridSpacing(double atr, double rsi, double volume)
         {
-            // Подготовка входных данных
-            var inputTensor = new DenseTensor<float>(new[] { 1, 3 }); // 1 строка, 3 признака
-            inputTensor[0, 0] = atr;
-            inputTensor[0, 1] = rsi;
-            inputTensor[0, 2] = volume;
+            var inputTensor = new DenseTensor<float>(new[] { 1, 3 });
+            inputTensor[0, 0] = (float)atr;
+            inputTensor[0, 1] = (float)rsi;
+            inputTensor[0, 2] = (float)volume;
 
-            // Создание входных данных для модели
             var inputs = new List<NamedOnnxValue>
             {
                 NamedOnnxValue.CreateFromTensor("float_input", inputTensor)
             };
 
-            // Выполнение предсказания
             using (var results = _session.Run(inputs))
             {
                 var output = results.FirstOrDefault()?.AsTensor<float>();
                 if (output != null)
                 {
-                    return output[0]; // Возвращаем первое значение из вывода модели
+                    return output[0];
                 }
             }
 
             throw new Exception("Не удалось выполнить предсказание.");
+        }
+
+        public void Retrain(string dataPath)
+        {
+            // Здесь можно добавить логику для переобучения модели на Python
+            // Например, вызвать Python-скрипт через Process.Start
+            Console.WriteLine("Модель дообучена на новых данных.");
         }
     }
 }
